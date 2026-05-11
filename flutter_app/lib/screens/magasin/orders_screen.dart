@@ -25,29 +25,30 @@ class _OrdersScreenState extends State<OrdersScreen> {
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<OrderProvider>();
-    return Scaffold(
-      appBar: AppBar(title: const Text('Mes Commandes')),
-      body: provider.isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : provider.orders.isEmpty
-              ? const Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(Icons.receipt_long_outlined, size: 64, color: AppColors.textSecondary),
-                      SizedBox(height: 16),
-                      Text('Aucune commande', style: TextStyle(color: AppColors.textSecondary, fontSize: 16)),
-                    ],
-                  ),
-                )
-              : RefreshIndicator(
-                  onRefresh: () => provider.loadMyOrders(),
-                  child: ListView.builder(
-                    padding: const EdgeInsets.all(12),
-                    itemCount: provider.orders.length,
-                    itemBuilder: (ctx, i) => _OrderCard(order: provider.orders[i]),
-                  ),
-                ),
+    if (provider.isLoading) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    if (provider.orders.isEmpty) {
+      return const Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.receipt_long_outlined, size: 64, color: AppColors.textSecondary),
+            SizedBox(height: 16),
+            Text('Aucune commande', style: TextStyle(color: AppColors.textSecondary, fontSize: 16)),
+          ],
+        ),
+      );
+    }
+
+    return RefreshIndicator(
+      onRefresh: () => provider.loadMyOrders(),
+      child: ListView.builder(
+        padding: const EdgeInsets.all(12),
+        itemCount: provider.orders.length,
+        itemBuilder: (ctx, i) => _OrderCard(order: provider.orders[i]),
+      ),
     );
   }
 }

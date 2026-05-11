@@ -11,66 +11,68 @@ class ProfileScreen extends StatelessWidget {
     final user = context.watch<AuthProvider>().user;
     if (user == null) return const SizedBox();
 
-    return Scaffold(
-      appBar: AppBar(title: const Text('Mon Profil')),
-      body: ListView(
-        padding: const EdgeInsets.all(16),
-        children: [
-          // Avatar
-          Center(
-            child: Column(
-              children: [
-                CircleAvatar(
-                  radius: 40,
-                  backgroundColor: AppColors.primary,
-                  child: Text(user.name[0].toUpperCase(), style: const TextStyle(color: Colors.white, fontSize: 32, fontWeight: FontWeight.bold)),
-                ),
-                const SizedBox(height: 12),
-                Text(user.name, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-                if (user.magasinName != null)
-                  Text(user.magasinName!, style: const TextStyle(color: AppColors.textSecondary)),
-              ],
-            ),
-          ),
-          const SizedBox(height: 24),
-          // Points summary
-          Card(
-            color: AppColors.primary.withOpacity(0.05),
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Icon(Icons.stars, color: AppColors.warning),
-                  const SizedBox(width: 8),
-                  Text('${user.pointsBalance} points fidélité', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                ],
+    return ListView(
+      padding: const EdgeInsets.all(16),
+      children: [
+        // Avatar
+        Center(
+          child: Column(
+            children: [
+              CircleAvatar(
+                radius: 40,
+                backgroundColor: AppColors.primary,
+                child: Text(user.name[0].toUpperCase(), style: const TextStyle(color: Colors.white, fontSize: 32, fontWeight: FontWeight.bold)),
               ),
-            ),
+              const SizedBox(height: 12),
+              Text(user.name, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+              if (user.magasinName != null)
+                Text(user.magasinName!, style: const TextStyle(color: AppColors.textSecondary)),
+            ],
           ),
-          const SizedBox(height: 16),
-          // Info
-          Card(
-            child: Column(
+        ),
+        const SizedBox(height: 24),
+        // Points summary
+        Card(
+          color: AppColors.primary.withOpacity(0.05),
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                _InfoTile(Icons.email_outlined, 'Email', user.email),
-                if (user.phone != null) _InfoTile(Icons.phone_outlined, 'Téléphone', user.phone!),
-                if (user.address != null) _InfoTile(Icons.location_on_outlined, 'Adresse', user.address!),
+                const Icon(Icons.stars, color: AppColors.warning),
+                const SizedBox(width: 8),
+                Text('${user.pointsBalance} points fidélité', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
               ],
             ),
           ),
-          const SizedBox(height: 24),
-          OutlinedButton.icon(
-            onPressed: () => context.read<AuthProvider>().logout(),
-            icon: const Icon(Icons.logout, color: AppColors.danger),
-            label: const Text('Se déconnecter', style: TextStyle(color: AppColors.danger)),
-            style: OutlinedButton.styleFrom(
-              side: const BorderSide(color: AppColors.danger),
-              padding: const EdgeInsets.symmetric(vertical: 14),
-            ),
+        ),
+        const SizedBox(height: 16),
+        // Info
+        Card(
+          child: Column(
+            children: [
+              _InfoTile(Icons.email_outlined, 'Email', user.email),
+              if (user.phone != null) _InfoTile(Icons.phone_outlined, 'Téléphone', user.phone!),
+              if (user.address != null) _InfoTile(Icons.location_on_outlined, 'Adresse', user.address!),
+            ],
           ),
-        ],
-      ),
+        ),
+        const SizedBox(height: 24),
+        OutlinedButton.icon(
+          onPressed: () async {
+            await context.read<AuthProvider>().logout();
+            if (context.mounted) {
+              Navigator.of(context).popUntil((route) => route.isFirst);
+            }
+          },
+          icon: const Icon(Icons.logout, color: AppColors.danger),
+          label: const Text('Se déconnecter', style: TextStyle(color: AppColors.danger)),
+          style: OutlinedButton.styleFrom(
+            side: const BorderSide(color: AppColors.danger),
+            padding: const EdgeInsets.symmetric(vertical: 14),
+          ),
+        ),
+      ],
     );
   }
 }

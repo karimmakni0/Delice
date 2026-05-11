@@ -35,86 +35,70 @@ class _ProductsScreenState extends State<ProductsScreen> {
     final provider = context.watch<ProductProvider>();
     final cart = context.watch<CartProvider>();
 
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Délice Distribution'),
-        actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 8),
-            child: Center(
-              child: Text(
-                '${cart.itemCount} articles',
-                style: const TextStyle(color: Colors.white70, fontSize: 13),
-              ),
+    return Column(
+      children: [
+        // Search bar
+        Padding(
+          padding: const EdgeInsets.all(12),
+          child: TextField(
+            controller: _searchCtrl,
+            decoration: InputDecoration(
+              hintText: 'Rechercher un produit...',
+              prefixIcon: const Icon(Icons.search),
+              suffixIcon: _searchCtrl.text.isNotEmpty
+                  ? IconButton(
+                      icon: const Icon(Icons.clear),
+                      onPressed: () {
+                        _searchCtrl.clear();
+                        context.read<ProductProvider>().setSearch('');
+                      },
+                    )
+                  : null,
+            ),
+            onChanged: (v) => context.read<ProductProvider>().setSearch(v),
+          ),
+        ),
+        // Category filter
+        if (provider.categories.isNotEmpty)
+          SizedBox(
+            height: 40,
+            child: ListView(
+              scrollDirection: Axis.horizontal,
+              padding: const EdgeInsets.symmetric(horizontal: 12),
+              children: [
+                _CategoryChip(label: 'Tous', selected: provider.selectedCategory == null, onTap: () => provider.setCategory(null)),
+                ...provider.categories.map((c) => _CategoryChip(
+                      label: c,
+                      selected: provider.selectedCategory == c,
+                      onTap: () => provider.setCategory(c),
+                    )),
+              ],
             ),
           ),
-        ],
-      ),
-      body: Column(
-        children: [
-          // Search bar
-          Padding(
-            padding: const EdgeInsets.all(12),
-            child: TextField(
-              controller: _searchCtrl,
-              decoration: InputDecoration(
-                hintText: 'Rechercher un produit...',
-                prefixIcon: const Icon(Icons.search),
-                suffixIcon: _searchCtrl.text.isNotEmpty
-                    ? IconButton(
-                        icon: const Icon(Icons.clear),
-                        onPressed: () {
-                          _searchCtrl.clear();
-                          context.read<ProductProvider>().setSearch('');
-                        },
-                      )
-                    : null,
-              ),
-              onChanged: (v) => context.read<ProductProvider>().setSearch(v),
-            ),
-          ),
-          // Category filter
-          if (provider.categories.isNotEmpty)
-            SizedBox(
-              height: 40,
-              child: ListView(
-                scrollDirection: Axis.horizontal,
-                padding: const EdgeInsets.symmetric(horizontal: 12),
-                children: [
-                  _CategoryChip(label: 'Tous', selected: provider.selectedCategory == null, onTap: () => provider.setCategory(null)),
-                  ...provider.categories.map((c) => _CategoryChip(
-                        label: c,
-                        selected: provider.selectedCategory == c,
-                        onTap: () => provider.setCategory(c),
-                      )),
-                ],
-              ),
-            ),
-          const SizedBox(height: 8),
-          // Products grid
-          Expanded(
-            child: provider.isLoading
-                ? const Center(child: CircularProgressIndicator())
-                : provider.products.isEmpty
-                    ? const Center(child: Text('Aucun produit trouvé'))
-                    : GridView.builder(
-                        padding: const EdgeInsets.all(12),
-                        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 2,
-                          childAspectRatio: 0.72,
-                          crossAxisSpacing: 12,
-                          mainAxisSpacing: 12,
-                        ),
-                        itemCount: provider.products.length,
-                        itemBuilder: (ctx, i) => _ProductCard(
-                          product: provider.products[i],
-                          cartQty: cart.getQty(provider.products[i].id),
-                          onAdd: (qty) => cart.add(provider.products[i], qty),
-                        ),
+        const SizedBox(height: 8),
+        // Products grid
+        Expanded(
+          child: provider.isLoading
+              ? const Center(child: CircularProgressIndicator())
+              : provider.products.isEmpty
+                  ? const Center(child: Text('Aucun produit trouvé'))
+                  : GridView.builder(
+                      padding: const EdgeInsets.all(12),
+                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 2,
+                        childAspectRatio: 0.72,
+                        crossAxisSpacing: 12,
+                        mainAxisSpacing: 12,
                       ),
-          ),
-        ],
-      ),
+                      itemCount: provider.products.length,
+                      itemBuilder: (ctx, i) => _ProductCard(
+                        product: provider.products[i],
+                        cartQty: cart.getQty(provider.products[i].id),
+                        onAdd: (qty) => cart.add(provider.products[i], qty),
+                      ),
+                    ),
+        ),
+      ],
     );
   }
 }

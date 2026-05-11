@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../../core/constants/app_colors.dart';
 import '../../providers/auth_provider.dart';
 import 'package:provider/provider.dart';
 import 'admin_dashboard_screen.dart';
@@ -24,18 +23,27 @@ class _AdminMainScreenState extends State<AdminMainScreen> {
     AdminMagasinsScreen(),
   ];
 
+  final _titles = const [
+    'Dashboard Admin',
+    'Toutes les commandes',
+    'Gestion Produits',
+    'Magasins',
+  ];
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Admin Panel'),
+        title: Text(_titles[_index]),
         actions: [
           IconButton(
             icon: const Icon(Icons.logout),
             tooltip: 'Logout',
             onPressed: () async {
               await context.read<AuthProvider>().logout();
-              // Navigator will be handled by AppRouter based on auth state
+              if (context.mounted) {
+                Navigator.of(context).popUntil((route) => route.isFirst);
+              }
             },
           ),
         ],

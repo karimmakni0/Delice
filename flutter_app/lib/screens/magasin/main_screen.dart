@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:badges/badges.dart' as badges;
-import '../../core/constants/app_colors.dart';
+import '../../providers/auth_provider.dart';
 import '../../providers/cart_provider.dart';
 import 'products_screen.dart';
 import 'cart_screen.dart';
@@ -27,19 +27,45 @@ class _MainScreenState extends State<MainScreen> {
     ProfileScreen(),
   ];
 
+  final _titles = const [
+    'Délice Distribution',
+    'Mon Panier',
+    'Mes Commandes',
+    'Mes Points',
+    'Mon Profil',
+  ];
+
   @override
   Widget build(BuildContext context) {
-    final cartCount = context.watch<CartProvider>().itemCount;
+    final cart = context.watch<CartProvider>();
+    final cartCount = cart.itemCount;
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Délice Distribution'),
+        title: Text(_titles[_index]),
         actions: [
+          if (_index == 0) // Show cart count only on products screen
+            Padding(
+              padding: const EdgeInsets.only(right: 8),
+              child: Center(
+                child: Text(
+                  '$cartCount articles',
+                  style: const TextStyle(color: Colors.white70, fontSize: 13),
+                ),
+              ),
+            ),
+          if (_index == 1 && cart.items.isNotEmpty) // Cart tab action
+            TextButton(
+              onPressed: cart.clear,
+              child: const Text('Vider', style: TextStyle(color: Colors.white70)),
+            ),
           IconButton(
             icon: const Icon(Icons.logout),
             tooltip: 'Logout',
             onPressed: () async {
               await context.read<AuthProvider>().logout();
-              // Navigator will be handled by AppRouter based on auth state
+              if (context.mounted) {
+                Navigator.of(context).popUntil((route) => route.isFirst);
+              }
             },
           ),
         ],

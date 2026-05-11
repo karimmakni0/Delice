@@ -35,51 +35,48 @@ class _AdminOrdersScreenState extends State<AdminOrdersScreen> {
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<OrderProvider>();
-    return Scaffold(
-      appBar: AppBar(title: const Text('Toutes les commandes')),
-      body: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(12),
-            child: TextField(
-              controller: _searchCtrl,
-              decoration: const InputDecoration(hintText: 'Rechercher par magasin...', prefixIcon: Icon(Icons.search)),
-              onChanged: (v) => provider.loadAdminOrders(search: v),
-            ),
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.all(12),
+          child: TextField(
+            controller: _searchCtrl,
+            decoration: const InputDecoration(hintText: 'Rechercher par magasin...', prefixIcon: Icon(Icons.search)),
+            onChanged: (v) => provider.loadAdminOrders(search: v),
           ),
-          // Status filter
-          SizedBox(
-            height: 40,
-            child: ListView(
-              scrollDirection: Axis.horizontal,
-              padding: const EdgeInsets.symmetric(horizontal: 12),
-              children: [
-                _FilterChip(label: 'Tous', selected: provider.statusFilter == null, onTap: () => provider.setStatusFilter(null)),
-                ...AppConstants.orderStatuses.map((s) => _FilterChip(
-                      label: s,
-                      selected: provider.statusFilter == s,
-                      onTap: () => provider.setStatusFilter(s),
-                    )),
-              ],
-            ),
+        ),
+        // Status filter
+        SizedBox(
+          height: 40,
+          child: ListView(
+            scrollDirection: Axis.horizontal,
+            padding: const EdgeInsets.symmetric(horizontal: 12),
+            children: [
+              _FilterChip(label: 'Tous', selected: provider.statusFilter == null, onTap: () => provider.setStatusFilter(null)),
+              ...AppConstants.orderStatuses.map((s) => _FilterChip(
+                    label: s,
+                    selected: provider.statusFilter == s,
+                    onTap: () => provider.setStatusFilter(s),
+                  )),
+            ],
           ),
-          const SizedBox(height: 8),
-          Expanded(
-            child: provider.isLoading
-                ? const Center(child: CircularProgressIndicator())
-                : provider.orders.isEmpty
-                    ? const Center(child: Text('Aucune commande'))
-                    : RefreshIndicator(
-                        onRefresh: () => provider.loadAdminOrders(),
-                        child: ListView.builder(
-                          padding: const EdgeInsets.all(12),
-                          itemCount: provider.orders.length,
-                          itemBuilder: (ctx, i) => _AdminOrderCard(order: provider.orders[i]),
-                        ),
+        ),
+        const SizedBox(height: 8),
+        Expanded(
+          child: provider.isLoading
+              ? const Center(child: CircularProgressIndicator())
+              : provider.orders.isEmpty
+                  ? const Center(child: Text('Aucune commande'))
+                  : RefreshIndicator(
+                      onRefresh: () => provider.loadAdminOrders(),
+                      child: ListView.builder(
+                        padding: const EdgeInsets.all(12),
+                        itemCount: provider.orders.length,
+                        itemBuilder: (ctx, i) => _AdminOrderCard(order: provider.orders[i]),
                       ),
-          ),
-        ],
-      ),
+                    ),
+        ),
+      ],
     );
   }
 }
